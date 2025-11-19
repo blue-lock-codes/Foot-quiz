@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Football - Saison Actuelle & Anciennes Saisons</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            padding: 20px 0;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .quiz-container {
+            background-color: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .category-selector {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .category-btn {
+            background-color: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 12px 25px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .category-btn:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-3px);
+        }
+
+        .category-btn.active {
+            background-color: #4CAF50;
+            font-weight: bold;
+        }
+
+        .question-container {
+            margin-bottom: 30px;
+        }
+
+        .question-image {
+            width: 100%;
+            max-height: 300px;
+            object-fit: cover;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .question-text {
+            font-size: 1.5rem;
+            margin-bottom: 25px;
+            text-align: center;
+            line-height: 1.4;
+        }
+
+        .answers-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .answers-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .answer-btn {
+            background-color: rgba(255, 255, 255, 0.15);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            text-align: left;
+            display: flex;
+            align-items: center;
+        }
+
+        .answer-btn:hover {
+            background-color: rgba(255, 255, 255, 0.25);
+            transform: translateY(-2px);
+        }
+
+        .answer-btn.correct {
+            background-color: #4CAF50;
+            border-color: #4CAF50;
+        }
+
+        .answer-btn.incorrect {
+            background-color: #f44336;
+            border-color: #f44336;
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .btn {
+            background-color: #FF9800;
+            border: none;
+            color: white;
+            padding: 12px 25px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            background-color: #F57C00;
+            transform: translateY(-2px);
+        }
+
+        .btn:disabled {
+            background-color: rgba(255, 255, 255, 0.2);
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .score-container {
+            text-align: center;
+            font-size: 1.2rem;
+            margin-top: 20px;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .progress {
+            height: 100%;
+            background-color: #4CAF50;
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
+        .timer-container {
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+
+        .timer {
+            font-weight: bold;
+            color: #FF9800;
+        }
+
+        .results-container {
+            text-align: center;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .results-title {
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+            color: #FF9800;
+        }
+
+        .results-score {
+            font-size: 2rem;
+            margin-bottom: 20px;
+        }
+
+        .restart-btn {
+            background-color: #4CAF50;
+            margin-top: 15px;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Quiz Football</h1>
+            <p class="subtitle">Testez vos connaissances sur les saisons actuelles et anciennes</p>
+        </header>
+
+        <div class="quiz-container">
+            <div class="category-selector">
+                <button class="category-btn active" data-category="current">Saison Actuelle</button>
+                <button class="category-btn" data-category="past">Anciennes Saisons</button>
+            </div>
+
+            <div class="progress-bar">
+                <div class="progress" id="progress"></div>
+            </div>
+
+            <div class="timer-container">
+                Question suivante dans: <span class="timer" id="timer">-</span> secondes
+            </div>
+
+            <div class="question-container" id="question-container">
+                <img src="https://images.unsplash.com/photo-1556056504-5c7696c4c28d?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80" alt="Image de football" class="question-image" id="question-image">
+                <h2 class="question-text" id="question-text">Chargement de la question...</h2>
+                
+                <div class="answers-container" id="answers-container">
+                    <!-- Les réponses seront générées ici -->
+                </div>
+            </div>
+
+            <div class="navigation">
+                <button class="btn" id="prev-btn" disabled>Question précédente</button>
+                <button class="btn" id="next-btn">Question suivante</button>
+            </div>
+
+            <div class="score-container">
+                <p>Score: <span id="score">0</span> / <span id="total-questions">0</span></p>
+            </div>
+
+            <div class="results-container hidden" id="results-container">
+                <h2 class="results-title">Quiz Terminé!</h2>
+                <p class="results-score">Votre score: <span id="final-score">0</span> / <span id="final-total">0</span></p>
+                <p id="results-message"></p>
+                <button class="btn restart-btn" id="restart-btn">Recommencer le quiz</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Données du quiz
+        const quizData = {
+            current: [
+                {
+                    question: "Qui a remporté la Ligue des Champions 2022-2023?",
+                    image: "https://images.unsplash.com/photo-1594736797933-d0d69c3d059d?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80",
+                    answers: [
+                        { text: "Manchester City", correct: true },
+                        { text: "Real Madrid", correct: false },
+                        { text: "Bayern Munich", correct: false },
+                        { text: "Inter Milan", correct: false }
+                    ]
+                },
+                {
+                    question: "Quel joueur a terminé meilleur buteur de la Premier League 2022-2023?",
+                    image: "https://images.unsplash.com/photo-1575361204480-aadea25e6e68?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80",
+                    answers: [
+                        { text: "Mohamed Salah", correct: false },
+                        { text: "Erling Haaland", correct: true },
+                        { text: "Harry Kane", correct: false },
+                        { text: "Kylian Mbappé", correct: false }
+                    ]
+                },
+                {
+                    question: "Quelle équipe a remporté la Coupe du Monde 2022?",
+                    image: "https://images.unsplash.com/photo-1599669454699-248893623440?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80",
+                    answers: [
+                        { text: "France", correct: false },
+                        { text: "Brésil", correct: false },
+                        { text: "Argentine", correct: true },
+                        { text: "Croatie", correct: false }
+                    ]
+                },
+                {
+                    question: "Quel club a remporté la Ligue Europa 2022-2023?",
+                    image: "https://images.unsplash.com/photo-1529900748604-07564a03e7a6?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80",
+                    answers: [
+                        { text: "Manchester United", correct: false },
+                        { text: "AS Roma", correct: false },
+                        { text: "Séville FC", correct: true },
+                        { text: "Juventus", correct: false }
+                    ]
+                },
+                {
+                    question: "Qui a remporté le Ballon d'Or 2023?",
+                    image: "https://images.unsplash.com/photo-1574629810360-7efbbe195018?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80",
+                    answers: [
+                        { text: "Kylian Mbappé", correct: false },
+                        { text: "Lionel Messi", correct: true },
+                        { text: "Erling Haaland", correct: false },
+                        { text: "Kevin De Bruyne", correct: false }
+                    ]
+                }
+            ],
+            past: [
+                {
+                    question: "Qui a remporté le Ballon d'Or en 2018?",
+                    image: "https://images.unsplash.com/photo-1575361204480-aadea25e6e68?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80",
+                    answers: [
+                        { text: "Cristiano Ronaldo", correct: false },
+                        { text: "Luka Modrić", correct: true },
+                        { text: "Lionel Messi", correct: false },
+                        { text: "Virgil van Dijk", correct: false }
+                    ]
+                },
+                {
+                    question: "Quelle équipe a réalisé le triplé (Ligue des Champions, championnat national, coupe nationale) en 2013?",
+                    image: "https://images.unsplash.com/photo-1594736797933-d0d69c3d059d?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80",
+                    answers: [
+                        { text: "Bayern Munich", correct: true },
+                        { text: "Barcelone", correct: false },
+                        { text: "Manchester United", correct: false },
+                        { text: "Real Madrid", correct: false }
+                    ]
+                },
+                {
+                    question: "Qui a marqué le but décisif en finale de la Coupe du Monde 2014?",
+                    image: "https://images.unsplash.com/photo-1599669454699-248893623440?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80",
+                    answers: [
+                        { text: "Thomas Müller", correct: false },
+                        { text: "Mario Götze", correct: true },
+                        { text: "Miroslav Klose", correct: false },
+                        { text: "Bastian Schweinsteiger", correct: false }
+                    ]
+                },
+                {
+                    question: "Quel club a remporté la Premier League anglaise en 2016 avec Leicester City?",
+                    image: "https://images.unsplash.com/photo-1529900748604-07564a03e7a6?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80",
+                    answers: [
+                        { text: "Chelsea", correct: false },
+                        { text: "Manchester City", correct: false },
+                        { text: "Leicester City", correct: true },
+                        { text: "Arsenal", correct: false }
+                    ]
+                },
+                {
+                    question: "Quelle nation a remporté l'Euro 2016?",
+                    image: "https://images.unsplash.com/photo-1531415074968-036ba1b575da?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80",
+                    answers: [
+                        { text: "France", correct: false },
+                        { text: "Allemagne", correct: false },
+                        { text: "Portugal", correct: true },
+                        { text: "Espagne", correct: false }
+                    ]
+                }
+            ]
+        };
+
+        // Variables globales
+        let currentCategory = 'current';
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let answered = false;
+        let timerInterval;
+        let timeLeft = 5;
+
+        // Éléments DOM
+        const categoryBtns = document.querySelectorAll('.category-btn');
+        const questionImage = document.getElementById('question-image');
+        const questionText = document.getElementById('question-text');
+        const answersContainer = document.getElementById('answers-container');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const scoreElement = document.getElementById('score');
+        const totalQuestionsElement = document.getElementById('total-questions');
+        const progressBar = document.getElementById('progress');
+        const timerElement = document.getElementById('timer');
+        const questionContainer = document.getElementById('question-container');
+        const resultsContainer = document.getElementById('results-container');
+        const finalScoreElement = document.getElementById('final-score');
+        const finalTotalElement = document.getElementById('final-total');
+        const resultsMessageElement = document.getElementById('results-message');
+        const restartBtn = document.getElementById('restart-btn');
+
+        // Initialisation
+        function init() {
+            updateCategory();
+            updateQuestion();
+            updateScore();
+            updateProgressBar();
+            
+            // Événements
+            categoryBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    categoryBtns.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentCategory = btn.dataset.category;
+                    currentQuestionIndex = 0;
+                    score = 0;
+                    resetTimer();
+                    updateCategory();
+                    updateQuestion();
+                    updateScore();
+                    updateProgressBar();
+                    showQuestionContainer();
+                });
+            });
+
+            prevBtn.addEventListener('click', goToPreviousQuestion);
+            nextBtn.addEventListener('click', goToNextQuestion);
+            restartBtn.addEventListener('click', restartQuiz);
+        }
+
+        // Mettre à jour la catégorie
+        function updateCategory() {
+            totalQuestionsElement.textContent = quizData[currentCategory].length;
+        }
+
+        // Mettre à jour la question
+        function updateQuestion() {
+            const question = quizData[currentCategory][currentQuestionIndex];
+            questionImage.src = question.image;
+            questionText.textContent = question.question;
+            
+            answersContainer.innerHTML = '';
+            question.answers.forEach(answer => {
+                const button = document.createElement('button');
+                button.classList.add('answer-btn');
+                button.textContent = answer.text;
+                button.addEventListener('click', () => selectAnswer(answer.correct, button));
+                answersContainer.appendChild(button);
+            });
+            
+            // Réinitialiser l'état de réponse
+            answered = false;
+            
+            // Mettre à jour les boutons de navigation
+            prevBtn.disabled = currentQuestionIndex === 0;
+            nextBtn.disabled = false;
+            nextBtn.textContent = currentQuestionIndex === quizData[currentCategory].length - 1 ? 'Terminer le quiz' : 'Question suivante';
+            
+            updateProgressBar();
+        }
+
+        // Sélectionner une réponse
+        function selectAnswer(isCorrect, button) {
+            if (answered) return;
+            
+            answered = true;
+            
+            if (isCorrect) {
+                button.classList.add('correct');
+                score++;
+                updateScore();
+            } else {
+                button.classList.add('incorrect');
+                // Afficher la bonne réponse
+                const buttons = answersContainer.querySelectorAll('.answer-btn');
+                buttons.forEach(btn => {
+                    const answerText = btn.textContent;
+                    const correctAnswer = quizData[currentCategory][currentQuestionIndex].answers.find(a => a.correct);
+                    if (answerText === correctAnswer.text) {
+                        btn.classList.add('correct');
+                    }
+                });
+            }
+            
+            // Désactiver tous les boutons de réponse
+            const answerButtons = answersContainer.querySelectorAll('.answer-btn');
+            answerButtons.forEach(btn => {
+                btn.disabled = true;
+            });
+            
+            // Démarrer le compte à rebours pour la question suivante
+            startTimer();
+        }
+
+        // Démarrer le timer pour la question suivante
+        function startTimer() {
+            timeLeft = 3; // 3 secondes pour voir la réponse
+            timerElement.textContent = timeLeft;
+            
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                timerElement.textContent = timeLeft;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    goToNextQuestion();
+                }
+            }, 1000);
+        }
+
+        // Réinitialiser le timer
+        function resetTimer() {
+            clearInterval(timerInterval);
+            timerElement.textContent = '-';
+        }
+
+        // Aller à la question précédente
+        function goToPreviousQuestion() {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                resetTimer();
+                updateQuestion();
+            }
+        }
+
+        // Aller à la question suivante
+        function goToNextQuestion() {
+            resetTimer();
+            
+            if (currentQuestionIndex < quizData[currentCategory].length - 1) {
+                currentQuestionIndex++;
+                updateQuestion();
+            } else {
+                // Afficher les résultats
+                showResults();
+            }
+        }
+
+        // Afficher les résultats
+        function showResults() {
+            questionContainer.classList.add('hidden');
+            resultsContainer.classList.remove('hidden');
+            
+            finalScoreElement.textContent = score;
+            finalTotalElement.textContent = quizData[currentCategory].length;
+            
+            // Message personnalisé selon le score
+            const percentage = (score / quizData[currentCategory].length) * 100;
+            if (percentage >= 80) {
+                resultsMessageElement.textContent = "Excellent! Vous êtes un vrai expert du football!";
+            } else if (percentage >= 60) {
+                resultsMessageElement.textContent = "Bon score! Vous connaissez bien votre football.";
+            } else if (percentage >= 40) {
+                resultsMessageElement.textContent = "Pas mal! Vous avez quelques connaissances footballistiques.";
+            } else {
+                resultsMessageElement.textContent = "Il faut suivre un peu plus le football!";
+            }
+        }
+
+        // Afficher le conteneur de question
+        function showQuestionContainer() {
+            questionContainer.classList.remove('hidden');
+            resultsContainer.classList.add('hidden');
+        }
+
+        // Redémarrer le quiz
+        function restartQuiz() {
+            currentQuestionIndex = 0;
+            score = 0;
+            updateQuestion();
+            updateScore();
+            showQuestionContainer();
+        }
+
+        // Mettre à jour le score
+        function updateScore() {
+            scoreElement.textContent = score;
+        }
+
+        // Mettre à jour la barre de progression
+        function updateProgressBar() {
+            const progress = ((currentQuestionIndex + 1) / quizData[currentCategory].length) * 100;
+            progressBar.style.width = `${progress}%`;
+        }
+
+        // Initialiser le quiz
+        init();
+    </script>
+</body>
+</html>
